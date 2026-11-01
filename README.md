@@ -1,6 +1,8 @@
 # Task Scheduler
 
-A task scheduler for phone and laptop. React + TypeScript + Vite on the front end, Supabase (Postgres, Auth, Realtime) as the single database.
+A task scheduler for phone and laptop. React + TypeScript + Vite on the front end, Supabase (Postgres, Realtime) as the single database.
+
+> **There is no sign-in.** Anyone with the site's address can read, change and delete every task. Keep the address private and don't store anything sensitive here.
 
 ## Setup
 
@@ -15,7 +17,6 @@ You need a free [Supabase](https://supabase.com) project.
    npm run dev
    ```
 
-4. **Create your account** in the app. Supabase emails a confirmation link by default. To skip that, turn off **Confirm email** under **Authentication > Sign In / Providers**.
 
 **Updating an existing database:** run the whole of `schema.sql` again after pulling new features. It is safe to re-run and keeps your data.
 
@@ -33,13 +34,11 @@ You need a free [Supabase](https://supabase.com) project.
 
 ## Using it on your phone
 
-Sign in with the same account on both devices. Everything reads and writes the one Supabase database, and changes appear on the other device live.
+Open the same address on both devices. Everything reads and writes the one Supabase database, and changes appear on the other device live.
 
 **To test over Wi-Fi:** run `npm run dev -- --host`, then open the `Network` address it prints on your phone.
 
-**To use it anywhere:** deploy it. On [Vercel](https://vercel.com), import the project and add the two `VITE_SUPABASE_*` values as environment variables. `vercel.json` already handles page routing. Then add the deployed URL under **Authentication > URL Configuration** in Supabase, so confirmation emails link to it.
-
-Once your account exists on a deployed app, you can turn off **Allow new users to sign up** in Supabase. Other accounts could never see your tasks, but this also stops strangers registering.
+**To use it anywhere:** deploy it. On [Vercel](https://vercel.com), import the project and add the two `VITE_SUPABASE_*` values as environment variables. `vercel.json` already handles page routing.
 
 ## Installing on your phone
 
@@ -60,7 +59,7 @@ Updates download by themselves, and the app asks before switching to a new versi
 
 The app needs a connection to save. If a save fails, it says so and keeps your input.
 
-Your light or dark mode choice is stored per device rather than in the database. Each device also keeps a read-only copy of the last sync for offline viewing, which is replaced on every sync and removed when you sign out.
+Your light or dark mode choice is stored per device rather than in the database. Each device also keeps a read-only copy of the last sync for offline viewing, which is replaced on every sync.
 
 ## Commands
 

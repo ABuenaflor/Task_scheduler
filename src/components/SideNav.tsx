@@ -5,7 +5,6 @@ import { CloseIcon, MoonIcon, SunIcon } from './Icons'
 import { useTheme, useToday } from '../lib/hooks'
 import { analytics } from '../lib/stats'
 import { useInstallOption } from '../lib/install'
-import { signOut } from '../lib/supabase'
 import { useTasks } from '../lib/TasksContext'
 
 const RANGES = [7, 30, 90]
@@ -18,7 +17,7 @@ function syncText(status: string, lastSynced: Date | null): string {
   return `Synced at ${time}`
 }
 
-export function SideNav({ email, onClose }: { email: string; onClose: () => void }) {
+export function SideNav({ onClose }: { onClose: () => void }) {
   const ref = useRef<HTMLDialogElement>(null)
   const closing = useRef(false)
   const [isClosing, setIsClosing] = useState(false)
@@ -129,20 +128,6 @@ export function SideNav({ email, onClose }: { email: string; onClose: () => void
             </span>
             <button type="button" className="btn btn-ghost btn-small" onClick={() => sync()}>
               Sync now
-            </button>
-          </div>
-          <div className="setting-row">
-            <span className="account">{email}</span>
-            <button
-              type="button"
-              className="btn btn-ghost btn-small"
-              onClick={() => {
-                // Clear ?menu=1 so the drawer doesn't reopen after the next sign-in.
-                window.history.replaceState(null, '', '/')
-                signOut()
-              }}
-            >
-              Sign out
             </button>
           </div>
         </footer>

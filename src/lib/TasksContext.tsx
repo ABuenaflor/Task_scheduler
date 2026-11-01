@@ -50,8 +50,7 @@ const UNIQUE_VIOLATION = '23505'
 
 export const DUPLICATE_LABEL = 'You already have a label with that name.'
 
-// Fail at once when the device knows it's offline. Otherwise an expired session makes
-// Supabase retry for up to half a minute before reporting the same failure.
+// Fail at once when the device knows it's offline, rather than waiting on the network.
 function requireOnline() {
   if (!navigator.onLine) throw new Error('You are offline.')
 }
@@ -72,17 +71,9 @@ async function fetchAll<T>(client: SupabaseClient, table: string): Promise<T[]> 
   }
 }
 
-export function TasksProvider({
-  client,
-  userId,
-  children,
-}: {
-  client: SupabaseClient
-  userId: string
-  children: ReactNode
-}) {
+export function TasksProvider({ client, children }: { client: SupabaseClient; children: ReactNode }) {
   // Start from the last sync, so the app opens instantly and with no signal.
-  const [snapshot] = useState(() => loadSnapshot(userId))
+  const [snapshot] = useState(loadSnapshot)
   const [tasks, setTasks] = useState<Task[]>(snapshot?.tasks ?? [])
   const [series, setSeries] = useState<Series[]>(snapshot?.series ?? [])
   const [labelRows, setLabelRows] = useState<LabelRow[]>(snapshot?.labelRows ?? [])
@@ -204,11 +195,9 @@ export function TasksProvider({
   useEffect(() => {
     sync()
 
-    // Live updates from the user's other devices. RLS decides which inserts and updates
-    // arrive. There is no row filter, because Supabase can't filter delete events; a
-    // delete only ever carries a row id, which matches nothing unless the row is ours.
+    // Live updates from other devices.
     const channel = client
-      .channel(`sync:${userId}`)
+      .channel('sync')
       .on('postgres_changes', { event: '*', schema: 'public', table: 'tasks' }, (payload) => {
         changes.current++
         if (payload.eventType === 'DELETE') {
@@ -217,7 +206,7 @@ export function TasksProvider({
           return
         }
         const row = payload.new as Task
-        if (row.user_id === userId && !pending.current.has(row.id) && !deleted.current.has(row.id)) {
+        if (!pending.current.has(row.id) && !deleted.current.has(row.id)) {
           setTasks((current) => mergeRow(current, row))
         }
       })
@@ -226,7 +215,7 @@ export function TasksProvider({
         if (payload.eventType === 'DELETE') {
           const id = (payload.old as LabelRow).id
           setLabelRows((current) => current.filter((row) => row.id !== id))
-        } else if ((payload.new as LabelRow).user_id === userId) {
+        } else {
           setLabelRows((current) => mergeRow(current, payload.new as LabelRow))
         }
       })
@@ -235,7 +224,7 @@ export function TasksProvider({
         if (payload.eventType === 'DELETE') {
           const id = (payload.old as Series).id
           setSeries((current) => current.filter((row) => row.id !== id))
-        } else if ((payload.new as Series).user_id === userId) {
+        } else {
           setSeries((current) => mergeRow(current, payload.new as Series))
         }
       })
@@ -263,16 +252,16 @@ export function TasksProvider({
       window.removeEventListener('offline', goOffline)
       clearInterval(poll)
     }
-  }, [client, userId, sync])
+  }, [client, sync])
 
   // Only after a sync has succeeded, so an empty first render can't replace a good copy.
   useEffect(() => {
     if (!lastSynced) return
     const timer = setTimeout(() => {
-      saveSnapshot(userId, { tasks, series, labelRows, syncedAt: lastSynced.toISOString() })
+      saveSnapshot({ tasks, series, labelRows, syncedAt: lastSynced.toISOString() })
     }, 300)
     return () => clearTimeout(timer)
-  }, [userId, tasks, series, labelRows, lastSynced])
+  }, [tasks, series, labelRows, lastSynced])
 
   const saveSeries = useCallback(
     async (id: string, fields: TaskFields, date: string, recurrence: Recurrence) => {

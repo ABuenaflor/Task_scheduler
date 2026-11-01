@@ -8,7 +8,7 @@ import { useToday } from '../lib/hooks'
 import { overdueTasks, sortForToday } from '../lib/stats'
 import { useTasks } from '../lib/TasksContext'
 
-export function HomePage({ email }: { email: string }) {
+export function HomePage() {
   const { tasks, status, moveToToday } = useTasks()
   const today = useToday()
   const navigate = useNavigate()
@@ -92,7 +92,7 @@ export function HomePage({ email }: { email: string }) {
         <PlusIcon />
       </Link>
 
-      {menuOpen && <SideNav email={email} onClose={closeMenu} />}
+      {menuOpen && <SideNav onClose={closeMenu} />}
     </div>
   )
 }
