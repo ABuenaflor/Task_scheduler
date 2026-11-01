@@ -4,7 +4,18 @@ import { clearOfflineData } from './offline'
 const url = import.meta.env.VITE_SUPABASE_URL as string | undefined
 const key = import.meta.env.VITE_SUPABASE_ANON_KEY as string | undefined
 
-export const supabase: SupabaseClient | null = url && key ? createClient(url, key) : null
+// createClient throws on a malformed URL. Treat that like a missing one, so a typo in the
+// settings shows the setup screen instead of a blank page.
+function connect(): SupabaseClient | null {
+  if (!url || !key) return null
+  try {
+    return createClient(url, key)
+  } catch {
+    return null
+  }
+}
+
+export const supabase = connect()
 
 export async function signOut() {
   // With no signal Supabase can stall on retries and then refuse, leaving the session in
