@@ -1093,7 +1093,7 @@ input {
   background: var(--urgency-high);
 }
 
-/* Setup */
+/* Passcode */
 .auth-page {
   display: flex;
   align-items: center;
@@ -1118,6 +1118,25 @@ input {
 .auth-card h1 {
   text-align: center;
   font-size: 1.4rem;
+}
+
+.passcode-input {
+  justify-self: center;
+  width: 170px;
+  min-height: 60px;
+  margin: 6px 0;
+  /* The extra left padding balances the spacing after the last digit. */
+  padding: 8px 0 8px 0.6em;
+  font-size: 32px;
+  letter-spacing: 0.6em;
+  text-align: center;
+  background: var(--surface);
+  border: 2px solid var(--muted);
+  border-radius: 12px;
+}
+
+.passcode-error {
+  text-align: center;
 }
 
 .auth-intro {

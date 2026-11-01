@@ -9,22 +9,44 @@ export interface Snapshot {
   syncedAt: string
 }
 
-const SNAPSHOT_KEY = 'offline:snapshot'
+export interface Identity {
+  id: string
+}
+
+const PREFIX = 'offline:'
+const IDENTITY_KEY = `${PREFIX}identity`
+const snapshotKey = (userId: string) => `${PREFIX}snapshot:${userId}`
 
 // Storage can be full or blocked. Offline viewing is then lost, nothing else.
-export function loadSnapshot(): Snapshot | null {
+function read<T>(key: string): T | null {
   try {
-    const raw = localStorage.getItem(SNAPSHOT_KEY)
-    return raw ? (JSON.parse(raw) as Snapshot) : null
+    const raw = localStorage.getItem(key)
+    return raw ? (JSON.parse(raw) as T) : null
   } catch {
     return null
   }
 }
 
-export function saveSnapshot(snapshot: Snapshot) {
+function write(key: string, value: unknown) {
   try {
-    localStorage.setItem(SNAPSHOT_KEY, JSON.stringify(snapshot))
+    localStorage.setItem(key, JSON.stringify(value))
   } catch {
-    // See loadSnapshot().
+    // See read().
+  }
+}
+
+export const loadSnapshot = (userId: string) => read<Snapshot>(snapshotKey(userId))
+export const saveSnapshot = (userId: string, snapshot: Snapshot) => write(snapshotKey(userId), snapshot)
+export const loadIdentity = () => read<Identity>(IDENTITY_KEY)
+export const saveIdentity = (identity: Identity) => write(IDENTITY_KEY, identity)
+
+// Called on sign-out, so no tasks stay on a shared device.
+export function clearOfflineData() {
+  try {
+    for (const key of Object.keys(localStorage)) {
+      if (key.startsWith(PREFIX)) localStorage.removeItem(key)
+    }
+  } catch {
+    // See read().
   }
 }

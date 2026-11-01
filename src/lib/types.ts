@@ -46,6 +46,7 @@ export interface TaskFields {
 
 export interface Task extends TaskFields {
   id: string
+  user_id: string
   scheduled_date: string
   completed_at: string | null
   reminded_at: string | null
@@ -56,6 +57,7 @@ export interface Task extends TaskFields {
 
 export interface Series extends TaskFields {
   id: string
+  user_id: string
   recurrence: Recurrence
   anchor_date: string
   generated_through: string
@@ -65,6 +67,7 @@ export interface Series extends TaskFields {
 
 export interface LabelRow {
   id: string
+  user_id: string
   name: string
   slot: number | null
   created_at: string

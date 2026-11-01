@@ -1,8 +1,6 @@
 # Task Scheduler
 
-A task scheduler for phone and laptop. React + TypeScript + Vite on the front end, Supabase (Postgres, Realtime) as the single database.
-
-> **There is no sign-in.** Anyone with the site's address can read, change and delete every task. Keep the address private and don't store anything sensitive here.
+A task scheduler for phone and laptop. React + TypeScript + Vite on the front end, Supabase (Postgres, Auth, Realtime) as the single database.
 
 ## Setup
 
@@ -17,6 +15,7 @@ You need a free [Supabase](https://supabase.com) project.
    npm run dev
    ```
 
+4. **Create your passcode.** The first time the app opens, it asks for a 4-digit passcode. Do this right after step 1: until a passcode exists, anyone who opens the site could set one.
 
 **Updating an existing database:** run the whole of `schema.sql` again after pulling new features. It is safe to re-run and keeps your data.
 
@@ -32,13 +31,23 @@ You need a free [Supabase](https://supabase.com) project.
 - **Insights:** in the side menu, charts of what you accomplished, per category and over time.
 - **Installable:** add it to your home screen for a full-screen app that opens with no signal, showing your tasks from the last sync. Saving still needs a connection.
 
+## Passcode
+
+The passcode is saved hashed in the database, and no email is involved. The database counts wrong tries: after five, it locks for 15 minutes, doubling up to a day with each further wrong try. A device stays unlocked until you tap **Lock app** in the side menu, so devices already unlocked aren't affected by a lock.
+
+**Forgot it?** Run `select public.reset_passcode();` in Supabase's SQL Editor, then open the app to create a new one. Your tasks are kept. Do the same to change your passcode.
+
+Four digits suit a personal task list, but don't store anything sensitive here.
+
 ## Using it on your phone
 
-Open the same address on both devices. Everything reads and writes the one Supabase database, and changes appear on the other device live.
+Enter the same passcode on both devices. Everything reads and writes the one Supabase database, and changes appear on the other device live.
 
 **To test over Wi-Fi:** run `npm run dev -- --host`, then open the `Network` address it prints on your phone.
 
 **To use it anywhere:** deploy it. On [Vercel](https://vercel.com), import the project and add the two `VITE_SUPABASE_*` values as environment variables. `vercel.json` already handles page routing.
+
+After creating your passcode, turn off **Allow new users to sign up** in Supabase. The passcode doesn't need it, and other accounts could never see your tasks, but this also stops strangers registering.
 
 ## Installing on your phone
 
@@ -59,7 +68,7 @@ Updates download by themselves, and the app asks before switching to a new versi
 
 The app needs a connection to save. If a save fails, it says so and keeps your input.
 
-Your light or dark mode choice is stored per device rather than in the database. Each device also keeps a read-only copy of the last sync for offline viewing, which is replaced on every sync.
+Your light or dark mode choice is stored per device rather than in the database. Each device also keeps a read-only copy of the last sync for offline viewing, which is replaced on every sync and removed when you sign out.
 
 ## Commands
 

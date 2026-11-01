@@ -5,6 +5,7 @@ import { CloseIcon, MoonIcon, SunIcon } from './Icons'
 import { useTheme, useToday } from '../lib/hooks'
 import { analytics } from '../lib/stats'
 import { useInstallOption } from '../lib/install'
+import { signOut } from '../lib/supabase'
 import { useTasks } from '../lib/TasksContext'
 
 const RANGES = [7, 30, 90]
@@ -128,6 +129,20 @@ export function SideNav({ onClose }: { onClose: () => void }) {
             </span>
             <button type="button" className="btn btn-ghost btn-small" onClick={() => sync()}>
               Sync now
+            </button>
+          </div>
+          <div className="setting-row">
+            <span>Ask for the passcode on this device</span>
+            <button
+              type="button"
+              className="btn btn-ghost btn-small"
+              onClick={() => {
+                // Clear ?menu=1 so the drawer doesn't reopen after the next unlock.
+                window.history.replaceState(null, '', '/')
+                signOut()
+              }}
+            >
+              Lock app
             </button>
           </div>
         </footer>

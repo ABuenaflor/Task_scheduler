@@ -19,6 +19,7 @@ import { labelCatalog, type LabelRow, type Task } from './types'
 
 const task = (over: Partial<Task>): Task => ({
   id: crypto.randomUUID(),
+  user_id: 'u',
   title: 't',
   label: 'work',
   urgency: 'low',
@@ -222,6 +223,7 @@ describe('sync merging', () => {
 
 const labelRow = (id: string, slot: number | null, created_at: string): LabelRow => ({
   id,
+  user_id: 'u',
   name: id,
   slot,
   created_at,
@@ -294,6 +296,7 @@ describe('recurrence', () => {
 
   const series = (over: object) => ({
     id: 's',
+    user_id: 'u',
     title: 't',
     label: 'work',
     urgency: 'low' as const,
